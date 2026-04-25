@@ -3,6 +3,11 @@
 import { useMutation, useQuery } from "convex/react";
 import { useState } from "react";
 import { AuthGate } from "@/components/auth-gate";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { missionSchema } from "@/lib/validators";
 
 export default function MissionsPage() {
@@ -44,63 +49,71 @@ function MissionsContent() {
   };
 
   return (
-    <section className="stack">
-      <div className="card" style={{ padding: "1rem" }}>
-        <h1 style={{ marginTop: 0 }}>Weekly Missions</h1>
-        <p style={{ marginTop: 0 }}>Add up to 3 specific and measurable missions each week.</p>
-        <div className="stack">
-          <input
-            className="input"
+    <section className="grid gap-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Weekly Missions</CardTitle>
+          <CardDescription>Add up to 3 specific and measurable missions each week.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <Input
             placeholder="Mission title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
-          <input
-            className="input"
+          <Input
             placeholder="Success metric (eg: user interviews)"
             value={metric}
             onChange={(e) => setMetric(e.target.value)}
           />
-          <input
-            className="input"
+          <Input
             placeholder="Target (eg: 10 interviews)"
             value={targetValue}
             onChange={(e) => setTargetValue(e.target.value)}
           />
-          <button className="btn btn-primary" onClick={onCreate}>
-            Add mission
-          </button>
-        </div>
-        {error ? <p style={{ color: "#b91c1c", marginBottom: 0 }}>{error}</p> : null}
-      </div>
+          <Button onClick={onCreate}>Add mission</Button>
+          {error ? (
+            <Alert className="border-red-200 bg-red-50 text-red-900">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          ) : null}
+        </CardContent>
+      </Card>
 
-      <div className="stack">
+      <div className="grid gap-4">
         {missions?.map((mission: any) => (
-          <div key={mission._id} className="card" style={{ padding: "0.9rem" }}>
-            <h3 style={{ marginTop: 0, marginBottom: "0.3rem" }}>{mission.title}</h3>
-            <p style={{ margin: 0 }}>
+          <Card key={mission._id}>
+            <CardContent className="p-5">
+              <h3 className="mb-2 text-lg font-medium">{mission.title}</h3>
+              <p className="text-sm text-slate-700">
               <strong>Metric:</strong> {mission.metric}
-            </p>
-            <p style={{ margin: "0.2rem 0 0.6rem" }}>
+              </p>
+              <p className="mb-3 mt-1 text-sm text-slate-700">
               <strong>Target:</strong> {mission.targetValue}
-            </p>
-            <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-              <button className="btn btn-secondary" onClick={() => setMissionStatus(mission._id, "active")}>
+              </p>
+              <Badge variant="secondary" className="mb-3">
+                {mission.status}
+              </Badge>
+              <div className="flex flex-wrap gap-2">
+                <Button variant="outline" size="sm" onClick={() => setMissionStatus(mission._id, "active")}>
                 Active
-              </button>
-              <button className="btn btn-primary" onClick={() => setMissionStatus(mission._id, "completed")}>
+                </Button>
+                <Button size="sm" onClick={() => setMissionStatus(mission._id, "completed")}>
                 Completed
-              </button>
-              <button className="btn btn-secondary" onClick={() => setMissionStatus(mission._id, "blocked")}>
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => setMissionStatus(mission._id, "blocked")}>
                 Blocked
-              </button>
-            </div>
-          </div>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         ))}
         {!missions?.length ? (
-          <div className="card" style={{ padding: "1rem" }}>
+          <Card>
+            <CardContent className="p-5 text-slate-600">
             No missions yet for this week.
-          </div>
+            </CardContent>
+          </Card>
         ) : null}
       </div>
     </section>

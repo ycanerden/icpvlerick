@@ -4,6 +4,13 @@ import { format } from "date-fns";
 import { useMutation, useQuery } from "convex/react";
 import { useMemo, useState } from "react";
 import { AuthGate } from "@/components/auth-gate";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { eventSchema, parseIsoDate } from "@/lib/validators";
 
 export default function CalendarPage() {
@@ -51,77 +58,69 @@ function CalendarContent() {
   };
 
   return (
-    <section className="stack">
-      <div className="card" style={{ padding: "1rem" }}>
-        <h1 style={{ marginTop: 0 }}>Shared Calendar</h1>
-        <div className="stack">
-          <input
-            className="input"
+    <section className="grid gap-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Shared Calendar</CardTitle>
+          <CardDescription>Share startup events and mandatory class sessions.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <Input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Event title"
           />
-          <label>
+          <Label className="space-y-2">
             Start
-            <input
-              className="input"
+            <Input
               type="datetime-local"
               value={startAt}
               onChange={(e) => setStartAt(e.target.value)}
             />
-          </label>
-          <label>
+          </Label>
+          <Label className="space-y-2">
             End
-            <input className="input" type="datetime-local" value={endAt} onChange={(e) => setEndAt(e.target.value)} />
-          </label>
-          <label style={{ display: "flex", gap: "0.4rem", alignItems: "center" }}>
-            <input
-              type="checkbox"
-              checked={isClassEvent}
-              onChange={(e) => setIsClassEvent(e.target.checked)}
-            />
+            <Input type="datetime-local" value={endAt} onChange={(e) => setEndAt(e.target.value)} />
+          </Label>
+          <label className="flex items-center gap-2 text-sm text-slate-700">
+            <Checkbox checked={isClassEvent} onChange={(e) => setIsClassEvent(e.target.checked)} />
             This is a mandatory class event
           </label>
-          <label style={{ display: "flex", gap: "0.4rem", alignItems: "center" }}>
-            <input
-              type="checkbox"
-              checked={sharedWithClass}
-              onChange={(e) => setSharedWithClass(e.target.checked)}
-            />
+          <label className="flex items-center gap-2 text-sm text-slate-700">
+            <Checkbox checked={sharedWithClass} onChange={(e) => setSharedWithClass(e.target.checked)} />
             Share with all teams
           </label>
-          <button className="btn btn-primary" onClick={onCreate}>
-            Add event
-          </button>
-        </div>
-        {error ? <p style={{ color: "#b91c1c", marginBottom: 0 }}>{error}</p> : null}
-      </div>
+          <Button onClick={onCreate}>Add event</Button>
+          {error ? (
+            <Alert className="border-red-200 bg-red-50 text-red-900">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          ) : null}
+        </CardContent>
+      </Card>
 
-      <div className="stack">
+      <div className="grid gap-4">
         {events?.map((event: any) => (
-          <article key={event._id} className="card" style={{ padding: "0.9rem" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", gap: "0.5rem" }}>
+          <Card key={event._id}>
+            <CardContent className="flex items-start justify-between gap-3 p-5">
+              <div>
               <strong>{event.title}</strong>
-              <span
-                style={{
-                  background: event.isClassEvent ? "#fee2e2" : "#dbeafe",
-                  padding: "0.2rem 0.5rem",
-                  borderRadius: "999px",
-                  fontSize: "0.8rem",
-                }}
-              >
-                {event.isClassEvent ? "Class" : "Startup"}
-              </span>
-            </div>
-            <p style={{ marginBottom: 0, color: "#334155" }}>
+                <p className="mt-1 text-sm text-slate-600">
               {format(event.startAt, "PPpp")} - {format(event.endAt, "PPpp")}
-            </p>
-          </article>
+                </p>
+              </div>
+              <Badge variant={event.isClassEvent ? "class" : "startup"}>
+                {event.isClassEvent ? "Class" : "Startup"}
+              </Badge>
+            </CardContent>
+          </Card>
         ))}
         {!events?.length ? (
-          <div className="card" style={{ padding: "1rem" }}>
+          <Card>
+            <CardContent className="p-5 text-slate-600">
             No events this month.
-          </div>
+            </CardContent>
+          </Card>
         ) : null}
       </div>
     </section>

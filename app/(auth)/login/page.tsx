@@ -1,20 +1,27 @@
 "use client";
 
 import { useAuthActions } from "@convex-dev/auth/react";
+import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { normalizeAuthError } from "@/lib/auth-errors";
 
 export default function LoginPage() {
   const authActions = useAuthActions();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setError("");
+    setError(null);
     setLoading(true);
     try {
       if (!authActions?.signIn) {
@@ -23,37 +30,61 @@ export default function LoginPage() {
       await authActions.signIn("password", { flow: "signIn", email, password });
       router.push("/dashboard");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to login");
+      setError(normalizeAuthError(err).message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <section className="card" style={{ padding: "1rem", maxWidth: 420 }}>
-      <h1 style={{ marginTop: 0 }}>Login</h1>
-      <form className="stack" onSubmit={onSubmit}>
-        <input
-          className="input"
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          className="input"
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        {error ? <p style={{ color: "#b91c1c", margin: 0 }}>{error}</p> : null}
-        <button className="btn btn-primary" type="submit" disabled={loading}>
-          {loading ? "Logging in..." : "Login"}
-        </button>
-      </form>
+    <section className="mx-auto w-full max-w-md">
+      <Card>
+        <CardHeader>
+          <CardTitle>Login</CardTitle>
+          <CardDescription>Welcome back. Continue with your startup sprint dashboard.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form className="space-y-4" onSubmit={onSubmit}>
+            <div className="space-y-2">
+              <Label htmlFor="login-email">Email</Label>
+              <Input
+                id="login-email"
+                type="email"
+                placeholder="name@startup.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="login-password">Password</Label>
+              <Input
+                id="login-password"
+                type="password"
+                placeholder="Your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            {error ? (
+              <Alert className="border-red-200 bg-red-50 text-red-900">
+                <AlertTitle>Login failed</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            ) : null}
+            <Button className="w-full" type="submit" disabled={loading}>
+              {loading ? "Logging in..." : "Login"}
+            </Button>
+            <p className="text-center text-sm text-slate-600">
+              New team?{" "}
+              <Link href="/signup" className="font-medium text-slate-900 hover:underline">
+                Create account
+              </Link>
+            </p>
+          </form>
+        </CardContent>
+      </Card>
     </section>
   );
 }

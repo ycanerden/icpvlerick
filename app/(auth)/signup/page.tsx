@@ -1,20 +1,27 @@
 "use client";
 
 import { useAuthActions } from "@convex-dev/auth/react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { normalizeAuthError } from "@/lib/auth-errors";
 
 export default function SignupPage() {
   const authActions = useAuthActions();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState<{ type: string; message: string } | null>(null);
   const [loading, setLoading] = useState(false);
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setError("");
+    setError(null);
     setLoading(true);
     try {
       if (!authActions?.signIn) {
@@ -27,38 +34,61 @@ export default function SignupPage() {
       });
       router.push("/dashboard");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to create account");
+      setError(normalizeAuthError(err));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <section className="card" style={{ padding: "1rem", maxWidth: 420 }}>
-      <h1 style={{ marginTop: 0 }}>Create account</h1>
-      <form className="stack" onSubmit={onSubmit}>
-        <input
-          className="input"
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          className="input"
-          type="password"
-          placeholder="Password (min 8 chars)"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          minLength={8}
-          required
-        />
-        {error ? <p style={{ color: "#b91c1c", margin: 0 }}>{error}</p> : null}
-        <button className="btn btn-primary" type="submit" disabled={loading}>
-          {loading ? "Creating..." : "Create account"}
-        </button>
-      </form>
+    <section className="mx-auto w-full max-w-md">
+      <Card>
+        <CardHeader>
+          <CardTitle>Create account</CardTitle>
+          <CardDescription>Sign up your team workspace and start the weekly sprint.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form className="space-y-4" onSubmit={onSubmit}>
+            <div className="space-y-2">
+              <Label htmlFor="signup-email">Email</Label>
+              <Input
+                id="signup-email"
+                type="email"
+                placeholder="name@startup.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="signup-password">Password</Label>
+              <Input
+                id="signup-password"
+                type="password"
+                placeholder="At least 8 characters"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                minLength={8}
+                required
+              />
+            </div>
+            {error ? (
+              <Alert className="border-amber-200 bg-amber-50 text-amber-900">
+                <AlertTitle>{error.type === "existing-account" ? "Account already exists" : "Sign up failed"}</AlertTitle>
+                <AlertDescription>{error.message}</AlertDescription>
+              </Alert>
+            ) : null}
+            <Button className="w-full" type="submit" disabled={loading}>
+              {loading ? "Creating account..." : "Create account"}
+            </Button>
+            {error?.type === "existing-account" ? (
+              <Button asChild variant="outline" className="w-full">
+                <Link href="/login">Go to login</Link>
+              </Button>
+            ) : null}
+          </form>
+        </CardContent>
+      </Card>
     </section>
   );
 }

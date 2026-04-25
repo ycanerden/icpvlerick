@@ -2,6 +2,8 @@
 
 import { useMutation, useQuery } from "convex/react";
 import { AuthGate } from "@/components/auth-gate";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function LeaderboardPage() {
   return (
@@ -16,34 +18,39 @@ function LeaderboardContent() {
   const recalculate = useMutation("leaderboard:recalculateSnapshots" as any);
 
   return (
-    <section className="stack">
-      <div className="card" style={{ padding: "1rem" }}>
-        <h1 style={{ marginTop: 0 }}>Leaderboard</h1>
-        <p style={{ marginTop: 0 }}>
+    <section className="grid gap-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Leaderboard</CardTitle>
+          <CardDescription>
           Points: mission created (+2), mission completed (+8), quick wins (+1, max 3).
-        </p>
-        <button className="btn btn-secondary" onClick={() => recalculate()}>
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button variant="outline" onClick={() => recalculate()}>
           Recalculate snapshots
-        </button>
-      </div>
+          </Button>
+        </CardContent>
+      </Card>
 
-      <div className="card" style={{ padding: "1rem" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead>
-            <tr style={{ textAlign: "left" }}>
-              <th>Rank</th>
-              <th>Team</th>
-              <th>Points</th>
-              <th>Breakdown</th>
+      <Card>
+        <CardContent className="p-0">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-slate-50 text-slate-600">
+              <tr>
+                <th className="px-4 py-3">Rank</th>
+                <th className="px-4 py-3">Team</th>
+                <th className="px-4 py-3">Points</th>
+                <th className="px-4 py-3">Breakdown</th>
             </tr>
           </thead>
           <tbody>
             {rows?.map((row: any, index: number) => (
-              <tr key={row.teamId} style={{ borderTop: "1px solid #e2e8f0" }}>
-                <td style={{ padding: "0.4rem 0" }}>{index + 1}</td>
-                <td>{row.teamName}</td>
-                <td>{row.points}</td>
-                <td>
+              <tr key={row.teamId} className="border-t border-slate-200">
+                <td className="px-4 py-3 font-medium">{index + 1}</td>
+                <td className="px-4 py-3">{row.teamName}</td>
+                <td className="px-4 py-3">{row.points}</td>
+                <td className="px-4 py-3 text-slate-600">
                   C:{row.breakdown.missionCreated} / D:{row.breakdown.missionCompleted} / W:
                   {row.breakdown.winPosted}
                 </td>
@@ -51,7 +58,8 @@ function LeaderboardContent() {
             ))}
           </tbody>
         </table>
-      </div>
+        </CardContent>
+      </Card>
     </section>
   );
 }
