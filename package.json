@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npx convex codegen && next build",
+    "build": "next build",
     "start": "next start -p ${PORT:-3000}",
     "lint": "eslint . --max-warnings=0",
     "test": "vitest run",
