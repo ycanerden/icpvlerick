@@ -16,6 +16,13 @@ export function normalizeAuthError(error: unknown) {
     };
   }
 
+  if (lower.includes("invalidsecret") || lower.includes("invalid secret")) {
+    return {
+      type: "invalid-credentials" as const,
+      message: "Email or password is incorrect.",
+    };
+  }
+
   if (lower.includes("not configured")) {
     return {
       type: "setup" as const,
